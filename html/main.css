@@ -1,0 +1,179 @@
+html {
+    height: 100%;
+    width: 100%;
+}
+body {
+    font-family: Arial, Helvetica, Sans-Serif;
+    margin: 0px;
+    min-height: 100%;
+    min-width: 100%;
+    display: flex;
+    align-content: stretch;
+    flex-direction: column;
+}
+.flex_nav_website {
+    flex: 100%;
+    display: flex;
+    flex-direction: row;
+    /* min-height: 100%; */
+    overflow-y: auto;
+    align-content: stretch;
+}
+.main {
+    flex: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+.content {
+    height: 100%;
+    margin: 0px 15px;
+    margin-bottom: 30px;
+}
+/* - - - - Index - - - - */
+.flex_box {
+    display: flex;
+    flex-flow: wrap;
+    align-content: flex-start;
+    height: 100%;
+}
+.box {
+    padding: 0px 30px 20px 30px;
+    margin: 15px;
+    max-height: 200px;
+    width: 250px;
+    text-align: left;
+    font-family: arial, sans-serif;
+}
+.box_title {display: inline-block;}
+.dot {
+    height: 0.8em;
+    width: 0.8em;
+    background-color: grey;
+    border-radius: 50%;
+    display: inline-block;
+    transition-duration: 1s;
+}
+/* - - - - Move - - - - */
+#MoveCanvas{
+    /* border: 1px solid black; */
+    margin: 20px;
+}
+/* - - - - Footer - - - - */
+footer {
+    flex: 10px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    text-align: right;
+    padding: 2px;
+    padding-right: 10px;
+}
+/* - - - - Side Navigation - - - - */
+.sidenav {
+    width: 200px;
+    min-height: 100%;
+}
+.sidenav .logo {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+.sidenav .logo_icon {
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 100px;
+    display: inline-block;
+    position: relative;
+    height: 1em;
+}
+.sidenav .logo_chip {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    color: #fff;
+    font-size: 1em;
+}
+.sidenav .logo_box {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 25%;
+    color: #20295b;
+    font-size: 0.5em;
+}
+.sidenav .logo_name {
+    text-align: center;
+    font-size: 30px;
+}
+.sidenav .logo_short_name {
+    display: none;
+    text-align: center;
+    font-size: 30px;
+}
+.sidenav a {
+    padding: 10px 16px;
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    display: block;
+}
+.sidenav a:hover {
+    color: white;
+    background-color: #26316d;
+}
+.sidenav .link_list {
+    display: flex;
+    flex-direction: column;
+}
+.sidenav .link_name {
+    display: inline-block;
+}
+.sidenav .link_icon {
+    display: none;
+}
+
+/* - - - - Smartphone restyle - - - - */
+@media only screen and (max-device-width: 450px){
+    .sidenav {height: 120px; width: 100%;}
+    .sidenav .logo {
+        flex-direction: row; 
+        justify-content: center;
+        padding: 10px 0;
+    }
+    .sidenav .logo_icon {
+        text-align: center; 
+        padding-left: 20px; 
+        width: 50px;
+        font-size: 50px;
+    }
+    .sidenav .logo_name {
+        padding-left: 20px;
+        line-height: 50px;
+    }
+    .sidenav .link_list {
+        flex-direction: row; justify-content: space-around;}
+    .sidenav .link_name {display: none;}
+    .sidenav .link_icon {display: block;}
+
+    .flex_nav_website {flex-direction: column;}
+    .flex_box {justify-content: center;}
+}
+/*  - - - - Slim design display - - - -  */
+@media only screen and (max-width: 570px) and (min-device-width: 451px){
+    .sidenav .link_list a {margin-bottom: 10px;}
+    .sidenav .link_name {display: none;}
+    .sidenav .link_icon {display: block;}
+
+    .sidenav .logo {height: 100px; padding: 20px 0px;}
+    .sidenav .logo_icon {font-size: 50px;}
+    .sidenav .logo_name {display: none;}
+    .sidenav .logo_short_name {display: block;}
+    .sidenav {width: 70px;}
+
+    div .sidenav:hover {width: 200px;}
+    div .sidenav:hover .link_name {display: inline-block;}
+    div .sidenav:hover .link_icon {display: inline-block;}
+    div .sidenav:hover .logo_name {display: block;}
+    div .sidenav:hover .logo_short_name {display: none;}
+}

@@ -1,0 +1,6 @@
+<!DOCTYPE html><html><head><title>UselessBoxInfo</title><style>body{font-family:Arial,Helvetica,Sans-Serif}</style></head><body><div><h2 class="box_title">Infos</h2><span class="dot green-d1" id="info-dot"></span><table><tr><td><b>Uptime:</b></td><td>~uptime~</td></tr><tr><td><b>Mode:</b></td><td>~mode~</td></tr><tr><td><b>Config:</b></td><td>~conf~</td></tr><tr><td><b>Serial:</b></td><td>~serial~</td></tr><tr><td><b>Reset:</b></td><td>~reset~</td></tr></table></div><script>var info_dot_to_red;
+            var info_dot_to_yellow;
+            clearTimeout(info_dot_to_red);
+            clearTimeout(info_dot_to_yellow);
+            info_dot_to_yellow = setTimeout(function () {$("#info-dot").removeClass("green-d1"); $("#info-dot").addClass("amber-l1");}, 1500);
+            info_dot_to_red = setTimeout(function () {$("#info-dot").removeClass("amber-l1"); $("#info-dot").addClass("red-d1");}, 4000);</script></body></html>

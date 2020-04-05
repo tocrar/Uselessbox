@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>UselessBox</title>
+        <style>body {color: black;}</style>
+    </head>
+    <body>
+        <h2 class="box_title">Current Status</h2>
+        <span class="dot green-d1" id="switch-dot"></span>
+        <table>
+            <tr><th>No</th><th>Switch</th><th>Touch</th><th>Val</th></tr>
+            <tr><td>1</td><td class="bool_switch">~switch0~</td><td class="touch_switch">~touch0~</td><td class="blue">~tval0~</td></tr>
+            <tr><td>2</td><td class="bool_switch">~switch1~</td><td class="touch_switch">~touch1~</td><td class="blue">~tval1~</td></tr>
+            <tr><td>3</td><td class="bool_switch">~switch2~</td><td class="touch_switch">~touch2~</td><td class="blue">~tval2~</td></tr>
+            <tr><td>4</td><td class="bool_switch">~switch3~</td><td class="touch_switch">~touch3~</td><td class="blue">~tval3~</td></tr>
+        </table>
+        <script>
+            var boolEntry = document.getElementsByClassName("bool_switch");
+            Object.entries(boolEntry).map((obj)=>{obj[1].textContent == "true" ? obj[1].style.color = "green" : obj[1].style.color = "red";});
+
+            var boolEntry = document.getElementsByClassName("touch_switch");
+            Object.entries(boolEntry).map((obj)=>{parseInt(obj[1].textContent, 10) > 0 ? obj[1].style.color = "green" : obj[1].style.color = "red";});
+
+            var switch_dot_to_red;
+            var switch_dot_to_yellow;
+            clearTimeout(switch_dot_to_red);
+            clearTimeout(switch_dot_to_yellow);
+            switch_dot_to_yellow = setTimeout(function () {$("#switch-dot").removeClass("green-d1"); $("#switch-dot").addClass("amber-l1");}, 1500);
+            switch_dot_to_red = setTimeout(function () {$("#switch-dot").removeClass("amber-l1"); $("#switch-dot").addClass("red-d1");}, 4000);
+        </script>
+    </body>
+</html>
