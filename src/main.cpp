@@ -362,8 +362,7 @@ void stop_sleep(){
 
 // Code for Tasks ---------------------------------------------------
 
-void codeForTouchTask( void * parameter )
-{
+void codeForTouchTask( void * parameter ){
   //touchAttachInterrupt(touch_pins[0], callback, Threshold);
   //touchAttachInterrupt(touch_pins[1], callback, Threshold);
   //touchAttachInterrupt(touch_pins[2], callback, Threshold);
