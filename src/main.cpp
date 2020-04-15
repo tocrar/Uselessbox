@@ -359,17 +359,8 @@ void stop_sleep(){
   }
 }
 
-/* void callback(){
-  Serial.print("Touch me");
-} */
-
 // Code for Tasks ---------------------------------------------------
-
 void codeForTouchTask( void * parameter ){
-  //touchAttachInterrupt(touch_pins[0], callback, Threshold);
-  //touchAttachInterrupt(touch_pins[1], callback, Threshold);
-  //touchAttachInterrupt(touch_pins[2], callback, Threshold);
-  //touchAttachInterrupt(touch_pins[3], callback, Threshold);
   uint8_t runval[4] = {100, 100, 100, 100};
   unsigned long starttime[4] = {0,0,0,0};
   for (;;) {
@@ -418,6 +409,7 @@ void codeForBaseTask(void * parameter){
       if(pos != -1){
         uint16_t t_time = is_touched(pos);
         if(t_time > 1){
+          stop_sleep();
           rotate_to_switch(pos);
           if(t_time > 2){
             /* rotate_to_switch(pos); */
@@ -427,6 +419,7 @@ void codeForBaseTask(void * parameter){
         }
       }
       else{
+        start_sleep();
         retreat();
         close_lid();
       }
@@ -439,6 +432,7 @@ void codeForBaseTask(void * parameter){
         }
       }
       if(next_target < 5){
+        stop_sleep();
         rotate_to_switch(next_target);
         open_lid();
         push_switch();
@@ -446,6 +440,7 @@ void codeForBaseTask(void * parameter){
       else{
         retreat();
         close_lid();
+        start_sleep();
       }
     }
   }
