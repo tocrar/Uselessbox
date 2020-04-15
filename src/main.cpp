@@ -69,7 +69,8 @@ uint16_t touch_status[4] = {0, 0, 0, 0};
 
 bool prerun = false;
 bool sleeping = false;
-uint8_t current_pos = 1;
+/* uint8_t current_pos = 1; */
+int current_pos[3] = {0, 0, 0}; // rot, push, lid
 
 // config functions --------------------------------------------------
 
@@ -161,8 +162,8 @@ bool set_rot(uint16_t pulse){
   return false;
 }
 
-bool set_push(uint16_t pulse){
-  if(pulse >= arm_move_push_min && pulse <= arm_move_push_max){
+bool set_push(uint16_t pulse, bool press = false){
+  if(pulse >= arm_move_push_min && (pulse <= arm_move_push_max || (press && pulse <= arm_pressed))){
     ledcWrite(arm_push_id, calc_duty(pulse, hz, bit_res));
     delay(100);
     return true;
@@ -170,61 +171,63 @@ bool set_push(uint16_t pulse){
   return false;
 }
 
+// ------------------
+
 void rotate_to_switch(uint8_t pos){
-  set_rot(switch_pos[pos]);
-  delay(abs(current_pos-pos)*150);
-  current_pos = pos;
+  if(pos != current_pos[0]){
+    set_rot(switch_pos[pos]);
+    delay(abs(current_pos[0]-pos)*150);
+  }
+  current_pos[0] = pos;
 }
 
-bool open_lid(bool state){
-  if(!state){
-    ledcWrite(deckel_id, calc_duty(deckel_auf, hz, bit_res));
+void open_lid(){
+  if(!current_pos[2]){
+    set_lid(deckel_auf);
     delay(100);
   }
-  return true;
+  current_pos[2] = true;
 }
 
-bool close_lid(){
-  ledcWrite(deckel_id, calc_duty(deckel_min, hz, bit_res));
-  delay(100);
-  return false;
-}
-
-void push_switch(uint8_t pos){
-  if(is_touched(pos)){return;}
-  ledcWrite(arm_push_id, calc_duty(arm_pressed, hz, bit_res));
-  do{
-    if(is_touched(pos)){
-      //ledcWrite(arm_push_id, calc_duty(arm_waiting, hz, bit_res));
-      //delay(100);
-      //return;
-      break;
-    }
+void close_lid(bool force = false){
+  if(current_pos[2] || force){
+    set_lid(deckel_min);
     delay(100);
-  }while(digitalRead(switch_pins[pos]) == 0);
-  //delay(100);
-  ledcWrite(arm_push_id, calc_duty(arm_waiting, hz, bit_res));
+  }
+  current_pos[2] = false;
+}
+
+void push_switch(){
+  if(is_touched(current_pos[0])){return;}
+  set_push(arm_pressed, true);
+  current_pos[1] = arm_pressed;
+  do{
+    if(is_touched(current_pos[0])){break;}
+    delay(100);
+  }while(is_pressed(current_pos[0]));
+  set_push(arm_waiting);
+  current_pos[1] = arm_waiting;
   delay(100);
 }
 
 void retreat(){
-  ledcWrite(arm_push_id, calc_duty(arm_move_push_min, hz, bit_res));
+  set_push(arm_move_push_min);
   delay(200);
 }
 
 void home_pos(){
   //open lid
-  set_lid(deckel_max);
+  open_lid();
   //reset switches
   for(int i=0;i<4;i++){
     if(is_pressed(i)){
       rotate_to_switch(i);
-      push_switch(i);
+      push_switch();
     }
   }
   set_push(arm_move_push_min);
   rotate_to_switch(0);
-  set_lid(deckel_min);
+  close_lid();
 }
 
 //Server template processor-----------------------------------------------------------
@@ -398,26 +401,52 @@ void codeForTouchTask( void * parameter ){
 
 void codeForBaseTask(void * parameter){
   for(;;){
-    bool offen = false;
-    for(uint8_t i=0; i<4; i++){
-
-      if(is_touched(i)){continue;}
-      if(!digitalRead(switch_pins[i])){
-        stop_sleep();
-        prerun = true;
-        rotate_to_switch(i);
-        offen = open_lid(offen);
-        push_switch(i);
+    uint8_t switches = get_switchmap();
+    if(switches == 0){
+      int pos = -1;
+      for(int i=0; i<4; i++){
+        if(is_touched(i)){
+          if(pos == -1){
+            pos = i;
+          }
+          else{
+            pos = -1;
+            break;
+          }
+        }
+      }
+      if(pos != -1){
+        uint16_t t_time = is_touched(pos);
+        if(t_time > 1){
+          rotate_to_switch(pos);
+          if(t_time > 2){
+            /* rotate_to_switch(pos); */
+            open_lid();
+            set_push(arm_move_push_max);
+          }
+        }
+      }
+      else{
+        retreat();
+        close_lid();
       }
     }
-    if(!offen && prerun){
-      retreat();
-      offen = close_lid();
-      prerun = false;
-      start_sleep();
-    }
-    if(!offen){
-      delay(10);
+    else{
+      uint8_t next_target = 5;
+      for(int i=0; i<4; i++){
+        if(!is_touched(i) && is_pressed(i) && abs(current_pos[0]-i) < next_target){
+          next_target = i;
+        }
+      }
+      if(next_target < 5){
+        rotate_to_switch(next_target);
+        open_lid();
+        push_switch();
+      }
+      else{
+        retreat();
+        close_lid();
+      }
     }
   }
 }
@@ -757,16 +786,19 @@ void setup() {
   //Servo setup
   ledcSetup(arm_rot_id, hz, bit_res);
   ledcAttachPin(arm_rot, arm_rot_id);
-  ledcWrite(arm_rot_id, calc_duty(arm_rot_default, hz, bit_res));
+  /* ledcWrite(arm_rot_id, calc_duty(arm_rot_default, hz, bit_res)); */
+  rotate_to_switch(1);
 
   ledcSetup(arm_push_id, hz, bit_res);
   ledcAttachPin(arm_push, arm_push_id);
-  ledcWrite(arm_push_id, calc_duty(arm_move_push_min, hz, bit_res));
+  /* ledcWrite(arm_push_id, calc_duty(arm_move_push_min, hz, bit_res)); */
+  retreat();
   delay(500);
 
   ledcSetup(deckel_id, hz, bit_res);
   ledcAttachPin(deckel, deckel_id);
-  ledcWrite(deckel_id, calc_duty(deckel_min, hz, bit_res));
+  /* ledcWrite(deckel_id, calc_duty(deckel_min, hz, bit_res)); */
+  close_lid(true);
   
   if((user_extra&8) == 8){serial_setup();} //Switch 2 serial
   if((user_extra&4) == 4){server_setup();} //Switch 1 server
